@@ -918,7 +918,7 @@ function launchHearts() {
     for (let i = 0; i < 3; i++) {
       const h = document.createElement('div');
       h.className = 'heart';
-      h.textContent = '❤️';
+      h.textContent = Math.random() > 0.5 ? '❤️' : '🐱';
       h.style.left = Math.random() * 95 + 'vw';
       h.style.bottom = '-40px';
       h.style.fontSize = (18 + Math.random() * 24) + 'px';
