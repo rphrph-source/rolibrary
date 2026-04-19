@@ -816,18 +816,21 @@ applyFilters();
 document.querySelector('th[data-col="autor"]').classList.add('sorted-asc');
 
 // ── AI RECOMMENDER ──
+const BOOKS_SLIM = BOOKS.map(b => ({
+  t: b.titel, a: b.autor, k: b.kategorie, s: b.section, l: b.lesestatus, sp: b.sprache
+}));
+
 const REC_SYSTEM_PROMPT = `Du bist ein persönlicher Buchempfehlungs-Assistent für eine private Bibliothek.
 
-Hier ist die vollständige Bibliothek als JSON:
-${JSON.stringify(BOOKS, null, 0)}
+Bibliothek (t=Titel, a=Autor, k=Kategorie, s=Sektion, l=Lesestatus, sp=Sprache):
+${JSON.stringify(BOOKS_SLIM)}
 
-Deine Aufgabe:
-1. Stelle dem Nutzer 2–3 kurze Fragen zu seiner aktuellen Stimmung, Interessen oder was er gerade sucht.
-2. Empfehle basierend auf den Antworten 3–5 Bücher aus der Bibliothek oben.
-3. Empfehle NUR Bücher, die in der Bibliothek existieren (exakter "titel"-Wert).
-4. Formatiere jede Empfehlung so: **Titel** — Autor (Kategorie) — ein Satz warum.
-5. Antworte in der Sprache, in der der Nutzer schreibt (Deutsch oder Englisch).
-Halte deine Antworten kurz und klar.`;
+Aufgabe:
+1. Stelle dem Nutzer 2–3 kurze Fragen zu Stimmung und Interessen.
+2. Empfehle 3–5 Bücher aus der Bibliothek oben.
+3. Nur Bücher empfehlen die exakt in der Liste vorkommen (exakter "t"-Wert).
+4. Format: **Titel** — Autor (Kategorie) — ein Satz warum.
+5. Antworte in der Sprache des Nutzers (DE/EN).`;
 
 // ── SUPABASE CONFIG ── fill in your credentials
 const SUPABASE_URL = 'https://niijhrpoirxfckvmcfzn.supabase.co';
