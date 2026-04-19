@@ -354,6 +354,29 @@
     100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
   }
 
+  /* ── ANON MESSAGE ── */
+  #anon-msg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1500;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(16px, 3vw, 24px);
+    color: var(--accent);
+    text-align: center;
+    padding: 32px;
+    max-width: 600px;
+    animation: anonFade 5s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes anonFade {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
   /* ── MOBILE ── */
   @media (max-width: 640px) {
     header {
@@ -962,7 +985,12 @@ document.getElementById('welcome-name').addEventListener('keydown', e => {
 });
 
 function handleWelcome() {
-  const name = document.getElementById('welcome-name').value.trim();
+  const raw = document.getElementById('welcome-name').value;
+  const name = raw.trim();
+  if (raw.length > 0 && name === '') {
+    showAnonMessage();
+    return;
+  }
   if (!name) return;
   visitorName = name;
   document.getElementById('welcome-overlay').style.display = 'none';
@@ -998,6 +1026,24 @@ function launchHearts() {
     count++;
     if (count > 40) clearInterval(interval);
   }, 200);
+}
+
+function showAnonMessage() {
+  document.getElementById('welcome-overlay').style.display = 'none';
+  visitorName = 'anonymous';
+  logVisit('anonymous');
+  const el = document.createElement('div');
+  el.id = 'anon-msg';
+  el.innerHTML = `<span id="anon-text"></span>`;
+  document.body.appendChild(el);
+  const text = "what's your name?! Anyways... start exploring, anonymous intruder 👀";
+  let i = 0;
+  const type = setInterval(() => {
+    document.getElementById('anon-text').textContent += text[i];
+    i++;
+    if (i >= text.length) clearInterval(type);
+  }, 40);
+  setTimeout(() => el.remove(), 5000);
 }
 
 function launchBookFlash() {
