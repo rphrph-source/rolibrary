@@ -967,8 +967,13 @@ function handleWelcome() {
   visitorName = name;
   document.getElementById('welcome-overlay').style.display = 'none';
   logVisit(name);
-  if (name.toLowerCase() === 'vlada') {
+  const n = name.toLowerCase();
+  if (n === 'vlada') {
     launchHearts();
+  } else if (n === 'roland' || n === 'ro') {
+    launchCrazyBooks();
+  } else if (n === 'jo' || n === 'joseph') {
+    launchSuperheroes();
   } else {
     launchBookFlash();
   }
@@ -1001,6 +1006,52 @@ function launchBookFlash() {
   el.textContent = '📖';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1800);
+}
+
+function launchCrazyBooks() {
+  const canvas = document.getElementById('heart-canvas');
+  const books = ['📚','📖','📕','📗','📘','📙','🔥','💥','🌀','⚡'];
+  let count = 0;
+  const interval = setInterval(() => {
+    for (let i = 0; i < 4; i++) {
+      const el = document.createElement('div');
+      el.className = 'heart';
+      el.textContent = books[Math.floor(Math.random() * books.length)];
+      el.style.left = Math.random() * 95 + 'vw';
+      el.style.bottom = '-40px';
+      el.style.fontSize = (20 + Math.random() * 30) + 'px';
+      el.style.animationDuration = (1 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * 0.3) + 's';
+      // Random spin
+      el.style.transform = `rotate(${Math.random() * 360}deg)`;
+      canvas.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+    count++;
+    if (count > 35) clearInterval(interval);
+  }, 150);
+}
+
+function launchSuperheroes() {
+  const canvas = document.getElementById('heart-canvas');
+  const heroes = ['🦸','🦸‍♂️','🦸‍♀️','⚡','💪','🦇','🕷️','🛡️','⭐','🌟'];
+  let count = 0;
+  const interval = setInterval(() => {
+    for (let i = 0; i < 3; i++) {
+      const el = document.createElement('div');
+      el.className = 'heart';
+      el.textContent = heroes[Math.floor(Math.random() * heroes.length)];
+      el.style.left = Math.random() * 95 + 'vw';
+      el.style.bottom = '-40px';
+      el.style.fontSize = (22 + Math.random() * 26) + 'px';
+      el.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+      el.style.animationDelay = (Math.random() * 0.4) + 's';
+      canvas.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
+    count++;
+    if (count > 40) clearInterval(interval);
+  }, 180);
 }
 </script>
 
