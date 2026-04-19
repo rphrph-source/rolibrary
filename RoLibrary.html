@@ -997,10 +997,6 @@ function scrollRecToBottom() {
 }
 
 // ── WELCOME ──
-document.getElementById('welcome-name').addEventListener('keydown', e => {
-  if (e.key === 'Enter') handleWelcome();
-});
-
 function handleWelcome() {
   const raw = document.getElementById('welcome-name').value;
   const name = raw.trim();
@@ -1124,7 +1120,7 @@ function launchSuperheroes() {
     <div class="w-logo">RoLibrary</div>
     <div class="w-sub">Personal Library</div>
     <label for="welcome-name">Who are you?</label>
-    <input type="text" id="welcome-name" placeholder="Enter your name" autocomplete="off" />
+    <input type="text" id="welcome-name" placeholder="Enter your name" autocomplete="off" onkeydown="if(event.key==='Enter') handleWelcome()" />
     <button id="welcome-btn" onclick="handleWelcome()">Enter</button>
   </div>
 </div>
