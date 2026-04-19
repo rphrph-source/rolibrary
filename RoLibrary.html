@@ -354,6 +354,30 @@
     100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
   }
 
+  /* ── MOBILE ── */
+  @media (max-width: 640px) {
+    header {
+      padding: 16px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo-ro, .logo-library { font-size: 18px; }
+    .stats { gap: 16px; flex-wrap: wrap; }
+    .stat-num { font-size: 20px; }
+    .controls { padding: 12px; }
+    .search-wrap { min-width: 120px; }
+    .table-wrap { padding: 0 8px 32px; }
+    th { font-size: 9px; padding: 10px 6px; }
+    td { padding: 8px 6px; font-size: 13px; }
+    .col-hide-mobile { display: none; }
+    #rec-panel {
+      width: 100%;
+      right: 0;
+      height: 70vh;
+      border-radius: 12px 12px 0 0;
+    }
+  }
+
   /* ── AI RECOMMENDER PANEL ── */
   .btn-recommend {
     background: transparent;
@@ -595,9 +619,9 @@
         <th onclick="sortBy('kategorie')" data-col="kategorie">Kategorie</th>
         <th onclick="sortBy('lesestatus')" data-col="lesestatus">Status</th>
         <th onclick="sortBy('besitz')" data-col="besitz">Besitz</th>
-        <th onclick="sortBy('quiz')" data-col="quiz">Quiz</th>
-        <th class="no-sort" data-col="zusammenfassung">Zusammenfassung</th>
-        <th class="no-sort" data-col="notizen">Notizen</th>
+        <th onclick="sortBy('quiz')" data-col="quiz" class="col-hide-mobile">Quiz</th>
+        <th class="no-sort col-hide-mobile" data-col="zusammenfassung">Zusammenfassung</th>
+        <th class="no-sort col-hide-mobile" data-col="notizen">Notizen</th>
       </tr>
     </thead>
     <tbody id="lib-body"></tbody>
@@ -678,9 +702,9 @@ function render() {
       <td class="col-kategorie">${b.kategorie}</td>
       <td>${statusBadge(b.lesestatus)}</td>
       <td>${besitzBadge(b.besitz)}</td>
-      <td class="col-quiz">${quizColor(b.quiz)}</td>
-      <td class="col-zusammenfassung">${b.zusammenfassung}</td>
-      <td class="col-notizen">${b.notizen}</td>
+      <td class="col-quiz col-hide-mobile">${quizColor(b.quiz)}</td>
+      <td class="col-zusammenfassung col-hide-mobile">${b.zusammenfassung}</td>
+      <td class="col-notizen col-hide-mobile">${b.notizen}</td>
     </tr>
   `).join('');
 }
@@ -769,8 +793,31 @@ Deine Aufgabe:
 5. Antworte in der Sprache, in der der Nutzer schreibt (Deutsch oder Englisch).
 Halte deine Antworten kurz und klar.`;
 
+// ── SUPABASE CONFIG ── fill in your credentials
+const SUPABASE_URL = '';
+const SUPABASE_KEY = '';
+
+async function logVisit(name) {
+  if (!SUPABASE_URL) return;
+  fetch(`${SUPABASE_URL}/rest/v1/visits`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  }).catch(() => {});
+}
+
+async function logConversation(name, messages) {
+  if (!SUPABASE_URL || messages.length < 2) return;
+  fetch(`${SUPABASE_URL}/rest/v1/chat_sessions`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ visitor_name: name, messages })
+  }).catch(() => {});
+}
+
 let recMessages = [];
 let recPanelOpen = false;
+let visitorName = '';
 
 function toggleRecommendChat() {
   const panel = document.getElementById('rec-panel');
@@ -784,6 +831,7 @@ function toggleRecommendChat() {
   } else {
     panel.classList.remove('open');
     btn.classList.remove('active');
+    logConversation(visitorName, recMessages);
   }
 }
 
@@ -903,7 +951,9 @@ document.getElementById('welcome-name').addEventListener('keydown', e => {
 function handleWelcome() {
   const name = document.getElementById('welcome-name').value.trim();
   if (!name) return;
+  visitorName = name;
   document.getElementById('welcome-overlay').style.display = 'none';
+  logVisit(name);
   if (name.toLowerCase() === 'vlada') {
     launchHearts();
   } else {
