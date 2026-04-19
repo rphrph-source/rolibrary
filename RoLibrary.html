@@ -843,23 +843,27 @@ async function logVisit(name) {
 }
 
 async function logConversation(name, messages) {
-  if (!SUPABASE_URL || messages.length < 1 || !chatSessionId) return;
-  fetch(`${SUPABASE_URL}/rest/v1/chat_sessions`, {
+  if (!SUPABASE_URL || conversationLogged) return;
+  const userMessages = messages.filter(m => m.role !== 'user' || m.content !== 'Hallo, ich brauche eine Buchempfehlung.');
+  if (userMessages.filter(m => m.role === 'user').length < 1) return; // only log if user actually typed something
+  conversationLogged = true;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/chat_sessions`, {
     method: 'POST',
     headers: {
       'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
       'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates'
+      'Prefer': 'return=minimal'
     },
-    body: JSON.stringify({ session_id: chatSessionId, visitor_name: name, messages })
-  }).catch(e => console.error('logConversation failed:', e));
+    body: JSON.stringify({ visitor_name: name, messages })
+  });
+  if (!res.ok) console.error('logConversation failed:', res.status, await res.text());
 }
 
 let recMessages = [];
 let recPanelOpen = false;
 let visitorName = '';
-let chatSessionId = null;
+let conversationLogged = false;
 
 function toggleRecommendChat() {
   const panel = document.getElementById('rec-panel');
@@ -908,7 +912,7 @@ function saveApiKey() {
 }
 
 function startConversation() {
-  chatSessionId = crypto.randomUUID();
+  conversationLogged = false;
   document.getElementById('btn-send').onclick = sendRecMessage;
   document.getElementById('rec-input').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendRecMessage(); }
